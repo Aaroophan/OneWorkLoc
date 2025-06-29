@@ -5,9 +5,6 @@ const nextConfig = {
   },
   images: { unoptimized: true },
   trailingSlash: true,
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
 };
 
 module.exports = nextConfig;

@@ -24,19 +24,24 @@ export default function CreatePage() {
     javascript: '',
     json: ''
   });
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setCurrentDomain(window.location.host);
+    setIsClient(true);
+    
+    if (typeof window !== 'undefined') {
+      setCurrentDomain(window.location.host);
 
-    // Generate demo URLs
-    try {
-      const jsDemo = createDemoUrl();
-      setDemoUrls(prev => ({
-        ...prev,
-        javascript: jsDemo
-      }));
-    } catch (error) {
-      console.error('Failed to create demo URLs:', error);
+      // Generate demo URLs
+      try {
+        const jsDemo = createDemoUrl();
+        setDemoUrls(prev => ({
+          ...prev,
+          javascript: jsDemo
+        }));
+      } catch (error) {
+        console.error('Failed to create demo URLs:', error);
+      }
     }
   }, []);
 
@@ -84,6 +89,14 @@ export default function CreatePage() {
   };
 
   const selectedType = contentTypeOptions.find(option => option.value === contentType);
+
+  // Helper function to get current origin safely
+  const getCurrentOrigin = () => {
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    return '';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -233,7 +246,7 @@ export default function CreatePage() {
                         {copied ? <Check className="mr-2 w-4 h-4" /> : <Copy className="mr-2 w-4 h-4" />}
                         {copied ? 'Copied!' : 'Copy URL'}
                       </Button>
-                      <Link href={encodedUrl.replace(window.location.origin, '')} className="flex-1">
+                      <Link href={encodedUrl.replace(getCurrentOrigin(), '')} className="flex-1">
                         <Button className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700">
                           Preview
                         </Button>
@@ -296,7 +309,7 @@ export default function CreatePage() {
                     </code>
                     {example.url.includes('demo-loading') === false && (
                       <div className="mt-2">
-                        <Link href={example.url.replace(window.location.origin, '')}>
+                        <Link href={example.url.replace(getCurrentOrigin(), '')}>
                           <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
                             Try Example
                           </Button>
