@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Code, FileText, GitBranch, Share, Users, Zap, Copy, Check } from 'lucide-react';
+import { ArrowRight, Code, FileText, GitBranch, Share, Users, Zap, Copy, Check, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { createDemoUrl } from '@/lib/encoder';
 
@@ -47,14 +47,20 @@ export default function HomePage() {
             <span className="text-xl font-bold text-white">OneWorkLoc</span>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/e/create">
+            <Link href="/workspace">
               <Button variant="outline" className="hidden sm:inline-flex border-white/20 text-white hover:bg-white/10">
-                Try Demo
+                <Palette className="mr-2 w-4 h-4" />
+                Workspace
               </Button>
             </Link>
             <Link href="/e/create">
+              <Button variant="outline" className="hidden sm:inline-flex border-white/20 text-white hover:bg-white/10">
+                Share Content
+              </Button>
+            </Link>
+            <Link href="/workspace">
               <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                Get Started
+                Start Creating
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
@@ -66,22 +72,23 @@ export default function HomePage() {
       <section className="container mx-auto px-4 py-16 text-center">
         <div className="max-w-4xl mx-auto">
           <Badge className="mb-6 bg-blue-500/20 text-blue-300 border-blue-500/30">
-            Universal Workstate Encoder Platform
+            Collaborative Digital Workspace
           </Badge>
 
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Encode Any Digital Work Into
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Shareable URLs</span>
+            Create, Collaborate, and
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Share Your Work</span>
           </h1>
 
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Share code, diagrams, designs, and entire workstates instantly. Recipients view and interact with your exact work without accounts or installations.
+            A unified workspace for coding, diagramming, writing, and data editing. Create professional content and share it instantly with shareable URLs.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Link href="/e/create">
+            <Link href="/workspace">
               <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-3 text-lg">
-                Create Your First URL
+                <Palette className="mr-2 w-5 h-5" />
+                Open Workspace
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
@@ -98,7 +105,7 @@ export default function HomePage() {
 
           {/* Demo URL Display */}
           <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 max-w-3xl mx-auto">
-            <p className="text-sm text-gray-400 mb-2">Example encoded URL:</p>
+            <p className="text-sm text-gray-400 mb-2">Example shared work URL:</p>
             <code className="text-xs sm:text-sm text-blue-300 font-mono break-all">
               {demoUrl || `${currentDomain || 'loading...'}/v3/code/ABC12/demo-loading...`}
             </code>
@@ -107,7 +114,7 @@ export default function HomePage() {
                 <Link href={demoUrl.replace(window.location.origin, '')}>
                   <Button size="sm" variant="outline" className="border-blue-500/30 text-blue-300 hover:bg-blue-500/10">
                     <ArrowRight className="mr-2 w-4 h-4" />
-                    Try Demo URL
+                    View Demo Work
                   </Button>
                 </Link>
               </div>
@@ -116,36 +123,89 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Workspace Features */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-white mb-4">Integrated Creative Tools</h2>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Everything you need to create professional content in one unified workspace
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {[
+            {
+              title: "Code Editor",
+              description: "Write and execute code with syntax highlighting and live output",
+              icon: Code,
+              color: "from-green-500 to-emerald-600",
+              features: ["Multi-language support", "Live execution", "Syntax highlighting"]
+            },
+            {
+              title: "Diagram Studio",
+              description: "Create flowcharts, wireframes, and technical diagrams visually",
+              icon: GitBranch,
+              color: "from-purple-500 to-violet-600",
+              features: ["Drag & drop tools", "Shape library", "Export options"]
+            },
+            {
+              title: "Rich Text Editor",
+              description: "Write documents with formatting and real-time preview",
+              icon: FileText,
+              color: "from-blue-500 to-cyan-600",
+              features: ["Markdown support", "Live preview", "Word count"]
+            },
+            {
+              title: "JSON Editor",
+              description: "Structure and validate JSON data with schema support",
+              icon: Share,
+              color: "from-orange-500 to-red-600",
+              features: ["Real-time validation", "Auto-formatting", "Statistics"]
+            }
+          ].map((tool, index) => (
+            <Card key={index} className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">
+              <CardHeader>
+                <div className={`w-12 h-12 bg-gradient-to-r ${tool.color} rounded-lg flex items-center justify-center mb-4`}>
+                  <tool.icon className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-white">{tool.title}</CardTitle>
+                <CardDescription className="text-gray-300">
+                  {tool.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-1">
+                  {tool.features.map((feature, idx) => (
+                    <li key={idx} className="text-sm text-gray-400 flex items-center">
+                      <div className="w-1 h-1 bg-gray-400 rounded-full mr-2" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* How It Works */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white mb-4">How It Works</h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            Advanced compression and encoding technology transforms your work into compact, shareable URLs
+            From creation to collaboration in three simple steps
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           <Card className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">
             <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg flex items-center justify-center mb-4">
-                <Code className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle className="text-white">Adaptive Encoding</CardTitle>
-              <CardDescription className="text-gray-300">
-                Intelligent compression with LZMA/Brotli and Base62/Base91 encoding based on content type and size
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">
-            <CardHeader>
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-4">
-                <GitBranch className="w-6 h-6 text-white" />
+                <span className="text-white font-bold text-xl">1</span>
               </div>
-              <CardTitle className="text-white">Smart Router</CardTitle>
+              <CardTitle className="text-white">Create</CardTitle>
               <CardDescription className="text-gray-300">
-                Auto-detects content type from URLs and renders appropriate viewers with syntax highlighting
+                Use our integrated tools to write code, design diagrams, edit text, or structure data
               </CardDescription>
             </CardHeader>
           </Card>
@@ -153,79 +213,51 @@ export default function HomePage() {
           <Card className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">
             <CardHeader>
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-white" />
+                <span className="text-white font-bold text-xl">2</span>
               </div>
-              <CardTitle className="text-white">Zero-Install Sharing</CardTitle>
+              <CardTitle className="text-white">Share</CardTitle>
               <CardDescription className="text-gray-300">
-                Recipients instantly view and interact with your exact workstate without accounts or software
+                Generate a compact, shareable URL that encodes your entire work state
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">
+            <CardHeader>
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-white font-bold text-xl">3</span>
+              </div>
+              <CardTitle className="text-white">Collaborate</CardTitle>
+              <CardDescription className="text-gray-300">
+                Recipients instantly access your exact work without accounts or installations
               </CardDescription>
             </CardHeader>
           </Card>
         </div>
       </section>
 
-      {/* Use Cases Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-4">Professional Use Cases</h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
-            Transform how teams collaborate across different tools and platforms
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          {[
-            {
-              title: "Architecture Reviews",
-              description: "Encode cloud diagrams + Terraform configs in one URL",
-              icon: GitBranch,
-              color: "from-blue-500 to-cyan-600"
-            },
-            {
-              title: "Code Pairing",
-              description: "Share IDE state with cursor positions and open files",
-              icon: Code,
-              color: "from-green-500 to-emerald-600"
-            },
-            {
-              title: "Design Handoffs",
-              description: "Send vector assets with inspection layers",
-              icon: FileText,
-              color: "from-purple-500 to-violet-600"
-            },
-            {
-              title: "Technical Proposals",
-              description: "Combine docs, architecture, and cost estimates",
-              icon: Share,
-              color: "from-orange-500 to-red-600"
-            }
-          ].map((useCase, index) => (
-            <Card key={index} className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className={`w-10 h-10 bg-gradient-to-r ${useCase.color} rounded-lg flex items-center justify-center mb-4`}>
-                  <useCase.icon className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-white font-semibold mb-2">{useCase.title}</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">{useCase.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm border border-white/10 rounded-2xl p-8 md:p-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Workflow?</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Creating?</h2>
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join professionals who are already using OneWorkLoc to streamline their collaboration and eliminate context loss.
+            Join professionals who are already using OneWorkLoc to streamline their creative workflow and eliminate context loss.
           </p>
-          <Link href="/e/create">
-            <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-              Start Encoding Now
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/workspace">
+              <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+                <Palette className="mr-2 w-5 h-5" />
+                Open Workspace
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+            <Link href="/e/create">
+              <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                <Share className="mr-2 w-5 h-5" />
+                Share Existing Content
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -239,7 +271,7 @@ export default function HomePage() {
             <span className="text-white font-semibold">OneWorkLoc</span>
           </div>
           <p className="text-gray-400 text-sm">
-            © 2025 OneWorkLoc. Universal Workstate Encoding Platform.
+            © 2025 OneWorkLoc. Collaborative Digital Workspace Platform.
           </p>
         </div>
       </footer>

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Code, FileText, GitBranch, Copy, Check, Share, Download, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { decodeContent, ContentMetadata } from '@/lib/encoder';
+import { DiagramViewer } from '@/components/shared/DiagramViewer';
 
 export default function WorkstatePage() {
   const params = useParams();
@@ -21,13 +22,13 @@ export default function WorkstatePage() {
     const decodeFromUrl = async () => {
       try {
         const pathParts = Array.isArray(params.workstate) ? params.workstate : [params.workstate];
-        
+
         if (pathParts.length < 4) {
           throw new Error('Invalid URL format');
         }
 
         const [version, type, checksum, encodedData] = pathParts;
-        
+
         if (!version.startsWith('v') || !encodedData) {
           throw new Error('Invalid URL structure');
         }
@@ -62,7 +63,7 @@ export default function WorkstatePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `workstate.${metadata?.language || 'txt'}`;
+    a.download = `workstate.${metadata?.language || metadata?.type || 'txt'}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -88,7 +89,19 @@ export default function WorkstatePage() {
   };
 
   const formatContent = (content: string, type: string, language?: string) => {
-    // Basic syntax highlighting for demo (in production, use Prism.js or similar)
+    // Handle diagram content specially
+    if (type === 'diagram') {
+      try {
+        const elements = JSON.parse(content);
+        if (Array.isArray(elements)) {
+          return <DiagramViewer elements={elements} />;
+        }
+      } catch (error) {
+        console.error('Failed to parse diagram data:', error);
+      }
+    }
+
+    // Basic syntax highlighting for code/json
     if (type === 'code' || type === 'json') {
       return (
         <pre className="text-sm text-gray-200 font-mono whitespace-pre-wrap break-all">
@@ -96,7 +109,8 @@ export default function WorkstatePage() {
         </pre>
       );
     }
-    
+
+    // Regular text content
     return (
       <pre className="text-sm text-gray-200 whitespace-pre-wrap break-words">
         {content}
@@ -142,9 +156,9 @@ export default function WorkstatePage() {
             </div>
             <h1 className="text-2xl font-bold text-white mb-4">Unable to Decode</h1>
             <p className="text-gray-300 mb-6">{error}</p>
-            <Link href="/e/create">
+            <Link href="/workspace">
               <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                Create New URL
+                Open Workspace
               </Button>
             </Link>
           </div>
@@ -189,22 +203,24 @@ export default function WorkstatePage() {
           {/* Content Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-white mb-2">Decoded Workstate</h1>
+              <h1 className="text-2xl font-bold text-white mb-2">
+                {metadata?.type === 'diagram' ? 'Shared Diagram' : 'Decoded Workstate'}
+              </h1>
               <p className="text-gray-300">
                 Shared {metadata && new Date(metadata.timestamp).toLocaleDateString()}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 mt-4 sm:mt-0">
-              <Button 
+              <Button
                 onClick={handleCopyContent}
                 variant="outline"
                 size="sm"
                 className="border-white/20 text-white hover:bg-white/10"
               >
                 {copied ? <Check className="mr-2 w-4 h-4" /> : <Copy className="mr-2 w-4 h-4" />}
-                {copied ? 'Copied!' : 'Copy'}
+                {copied ? 'Copied!' : 'Copy Data'}
               </Button>
-              <Button 
+              <Button
                 onClick={handleDownload}
                 variant="outline"
                 size="sm"
@@ -213,8 +229,8 @@ export default function WorkstatePage() {
                 <Download className="mr-2 w-4 h-4" />
                 Download
               </Button>
-              <Button 
-                onClick={() => window.location.href = `mailto:?subject=Shared Workstate&body=Check out this content: ${window.location.href}`}
+              <Button
+                onClick={() => window.location.href = `mailto:?subject=Shared ${metadata?.type || 'Content'}&body=Check out this content: ${window.location.href}`}
                 size="sm"
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
               >
@@ -229,14 +245,14 @@ export default function WorkstatePage() {
             <CardHeader className="pb-4">
               <CardTitle className="text-white flex items-center">
                 <ContentIcon className="w-5 h-5 mr-2" />
-                Content
+                {metadata?.type === 'diagram' ? 'Visual Diagram' : 'Content'}
                 {metadata?.language && (
                   <span className="ml-2 text-sm text-gray-400">({metadata.language})</span>
                 )}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 max-h-[600px] overflow-auto">
+              <div className={`${metadata?.type === 'diagram' ? 'bg-slate-800' : 'bg-black/30'} backdrop-blur-sm border border-white/10 rounded-lg p-4 ${metadata?.type === 'diagram' ? '' : 'max-h-[600px] overflow-auto'}`}>
                 {formatContent(content, metadata?.type || 'text', metadata?.language)}
               </div>
             </CardContent>
@@ -264,8 +280,22 @@ export default function WorkstatePage() {
                   <p className="text-white font-medium">v{metadata?.version || 1}</p>
                 </div>
                 <div className="bg-white/5 rounded-lg p-3">
-                  <p className="text-gray-400 text-sm">Size</p>
-                  <p className="text-white font-medium">{content.length} chars</p>
+                  <p className="text-gray-400 text-sm">
+                    {metadata?.type === 'diagram' ? 'Elements' : 'Size'}
+                  </p>
+                  <p className="text-white font-medium">
+                    {metadata?.type === 'diagram'
+                      ? (() => {
+                        try {
+                          const elements = JSON.parse(content);
+                          return Array.isArray(elements) ? `${elements.length} items` : `${content.length} chars`;
+                        } catch {
+                          return `${content.length} chars`;
+                        }
+                      })()
+                      : `${content.length} chars`
+                    }
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -273,10 +303,10 @@ export default function WorkstatePage() {
 
           {/* Create New */}
           <div className="mt-8 text-center">
-            <p className="text-gray-300 mb-4">Want to create your own shareable URL?</p>
-            <Link href="/e/create">
+            <p className="text-gray-300 mb-4">Want to create your own workspace?</p>
+            <Link href="/workspace">
               <Button className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700">
-                Create New URL
+                Open Workspace
               </Button>
             </Link>
           </div>
