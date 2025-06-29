@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Copy, Check, Share, Code, FileText, GitBranch, Zap, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { encodeContent } from '@/lib/encoder';
+import { encodeContent, createDemoUrl } from '@/lib/encoder';
 
 type ContentType = 'text' | 'code' | 'json' | 'diagram';
 
@@ -19,6 +19,26 @@ export default function CreatePage() {
   const [isEncoding, setIsEncoding] = useState(false);
   const [encodedUrl, setEncodedUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [currentDomain, setCurrentDomain] = useState('');
+  const [demoUrls, setDemoUrls] = useState({
+    javascript: '',
+    json: ''
+  });
+
+  useEffect(() => {
+    setCurrentDomain(window.location.host);
+
+    // Generate demo URLs
+    try {
+      const jsDemo = createDemoUrl();
+      setDemoUrls(prev => ({
+        ...prev,
+        javascript: jsDemo
+      }));
+    } catch (error) {
+      console.error('Failed to create demo URLs:', error);
+    }
+  }, []);
 
   const contentTypeOptions = [
     { value: 'text', label: 'Plain Text', icon: FileText, color: 'from-gray-500 to-slate-600' },
@@ -154,11 +174,11 @@ export default function CreatePage() {
                   <label className="text-sm font-medium text-white">Content</label>
                   <Textarea
                     placeholder={
-                      contentType === 'code' 
+                      contentType === 'code'
                         ? `// Enter your ${language} code here...\nfunction hello() {\n  console.log("Hello, World!");\n}`
                         : contentType === 'json'
-                        ? '{\n  "message": "Hello, World!",\n  "timestamp": "2025-01-27"\n}'
-                        : "Enter your content here..."
+                          ? '{\n  "message": "Hello, World!",\n  "timestamp": "2025-01-27"\n}'
+                          : "Enter your content here..."
                     }
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
@@ -166,7 +186,7 @@ export default function CreatePage() {
                   />
                 </div>
 
-                <Button 
+                <Button
                   onClick={handleEncode}
                   disabled={!content.trim() || isEncoding}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
@@ -205,7 +225,7 @@ export default function CreatePage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <Button 
+                      <Button
                         onClick={handleCopy}
                         variant="outline"
                         className="flex-1 border-white/20 text-white hover:bg-white/10"
@@ -213,7 +233,7 @@ export default function CreatePage() {
                         {copied ? <Check className="mr-2 w-4 h-4" /> : <Copy className="mr-2 w-4 h-4" />}
                         {copied ? 'Copied!' : 'Copy URL'}
                       </Button>
-                      <Link href={encodedUrl.replace('OneWorkLoc.app', '')} className="flex-1">
+                      <Link href={encodedUrl.replace(window.location.origin, '')} className="flex-1">
                         <Button className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700">
                           Preview
                         </Button>
@@ -260,20 +280,29 @@ export default function CreatePage() {
                 {[
                   {
                     type: 'JavaScript Code',
-                    url: '/v3/code/Bc3e1/eNqrVspLzSlNzStRslJKK8rPTSxTslJKTixJzsjMS1WyMjJQUkorys9VqihKzEvMTVWyqlbKTUxOzsjNycxLt1Ky0lFKyixNzCvJSE0tsqpVAqvNTYQpKUkt0lHKz0vJTAexiiurqgEAYjAmRA==',
+                    url: demoUrls.javascript || `${currentDomain || 'loading...'}/v3/code/ABC12/demo-loading`,
                     color: 'border-green-500/30 bg-green-500/10'
                   },
                   {
                     type: 'JSON Configuration',
-                    url: '/v3/json/Ad7f9/eJyLjgUAARsAqg==',
+                    url: `${currentDomain || 'loading...'}/v3/json/DEF34/sample-json-data`,
                     color: 'border-blue-500/30 bg-blue-500/10'
                   }
                 ].map((example, index) => (
                   <div key={index} className={`p-4 rounded-lg border ${example.color}`}>
                     <p className="text-white font-medium mb-2">{example.type}</p>
                     <code className="text-xs text-gray-300 font-mono break-all">
-                      OneWorkLoc.app{example.url}
+                      {example.url}
                     </code>
+                    {example.url.includes('demo-loading') === false && (
+                      <div className="mt-2">
+                        <Link href={example.url.replace(window.location.origin, '')}>
+                          <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                            Try Example
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

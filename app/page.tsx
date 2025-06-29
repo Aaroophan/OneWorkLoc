@@ -1,18 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Code, FileText, GitBranch, Share, Users, Zap, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
+import { createDemoUrl } from '@/lib/encoder';
 
 export default function HomePage() {
   const [copiedDemo, setCopiedDemo] = useState(false);
+  const [currentDomain, setCurrentDomain] = useState('');
+  const [demoUrl, setDemoUrl] = useState('');
+
+  useEffect(() => {
+    setCurrentDomain(window.location.host);
+    // Generate a working demo URL
+    try {
+      const demo = createDemoUrl();
+      setDemoUrl(demo);
+    } catch (error) {
+      console.error('Failed to create demo URL:', error);
+      setDemoUrl(`${window.location.origin}/v3/code/ABC12/demo-content-here`);
+    }
+  }, []);
 
   const handleCopyDemo = async () => {
-    const demoUrl = 'https://OneWorkLoc.app/v3/code/Bc3e1/eNqrVspLzSlNzStRslJKK8rPTSxTslJKTixJzsjMS1WyMjJQUkorys9VqihKzEvMTVWyqlbKTUxOzsjNycxLt1Ky0lFKyixNzCvJSE0tsqpVAqvNTYQpKUkt0lHKz0vJTAexiiurqgEAYjAmRA==';
-    
     try {
       await navigator.clipboard.writeText(demoUrl);
       setCopiedDemo(true);
@@ -55,12 +68,12 @@ export default function HomePage() {
           <Badge className="mb-6 bg-blue-500/20 text-blue-300 border-blue-500/30">
             Universal Workstate Encoder Platform
           </Badge>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             Encode Any Digital Work Into
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Shareable URLs</span>
           </h1>
-          
+
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
             Share code, diagrams, designs, and entire workstates instantly. Recipients view and interact with your exact work without accounts or installations.
           </p>
@@ -72,9 +85,9 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button 
-              variant="outline" 
-              size="lg" 
+            <Button
+              variant="outline"
+              size="lg"
               className="border-white/20 text-white hover:bg-white/10 px-8 py-3 text-lg"
               onClick={handleCopyDemo}
             >
@@ -87,8 +100,18 @@ export default function HomePage() {
           <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 max-w-3xl mx-auto">
             <p className="text-sm text-gray-400 mb-2">Example encoded URL:</p>
             <code className="text-xs sm:text-sm text-blue-300 font-mono break-all">
-              OneWorkLoc.app/v3/code/Bc3e1/eNqrVspLzSlNzStRslJKK8rPTSxTslJKTixJzsjMS1WyMjJQUkorys9VqihKzEvMTVWyqlbKTUxOzsjNycxLt1Ky0lFKyixNzCvJSE0tsqpVAqvNTYQpKUkt0lHKz0vJTAexiiurqgEAYjAmRA==
+              {demoUrl || `${currentDomain || 'loading...'}/v3/code/ABC12/demo-loading...`}
             </code>
+            {demoUrl && (
+              <div className="mt-3">
+                <Link href={demoUrl.replace(window.location.origin, '')}>
+                  <Button size="sm" variant="outline" className="border-blue-500/30 text-blue-300 hover:bg-blue-500/10">
+                    <ArrowRight className="mr-2 w-4 h-4" />
+                    Try Demo URL
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
